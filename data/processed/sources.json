@@ -1,0 +1,431 @@
+{
+  "retrieved_at_utc": "2026-10-07T13:30:54.618256+00:00",
+  "sources": [
+    {
+      "name": "The Well / Euler Multi-quadrants, open boundaries",
+      "provider": "Polymathic AI; Ohana et al. (2024)",
+      "url": "https://huggingface.co/datasets/polymathic-ai/euler_multi_quadrants_openBC/resolve/84e3eb65faf286533714295515caf9b99b4717a7/data/test/euler_multi_quadrants_openBC_gamma_1.4_Dry_air_20_chunk_40.hdf5",
+      "revision": "84e3eb65faf286533714295515caf9b99b4717a7",
+      "upstream_file_sha256": "80ccb5d31d0a4d58750b9e63b97edbcbfe04c8d7391961bf0a24e66ecb926736",
+      "upstream_sha256_verified_by_full_download": false,
+      "card_url": "https://huggingface.co/datasets/polymathic-ai/euler_multi_quadrants_openBC/raw/84e3eb65faf286533714295515caf9b99b4717a7/README.md",
+      "card_sha256": "e39df34b70ad68667888fa3c7470a43a2372e5b73e3c594d03336dd473daf6e3",
+      "license": "CC-BY-4.0",
+      "license_source": "https://arxiv.org/html/2412.00568v2",
+      "license_note": "The Well paper, datasheet question Q43; HF card has no license field.",
+      "artifact": "well_sample.npz",
+      "artifact_sha256": "4d1a3e3c99b6a08388f9951b87cacd9e064699c9a9754e53f8f63b8070c704f1",
+      "artifact_bytes": 171648,
+      "selection": {
+        "trajectory": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          8,
+          10
+        ],
+        "spatial_reduction": "512x512 -> 64x64 by non-overlapping 8x8 cell means",
+        "conserved_order": [
+          "rho",
+          "momentum_x",
+          "momentum_y",
+          "momentum_z",
+          "total_energy_density"
+        ],
+        "eos_order": [
+          "rho",
+          "momentum_x",
+          "momentum_y",
+          "total_energy_density",
+          "pressure"
+        ],
+        "eos_sampling": "1000 deterministic random cells (seed 11), raw frame 2 train / frame 10 test"
+      },
+      "schema": {
+        "t0_fields/density": {
+          "shape": [
+            10,
+            101,
+            512,
+            512
+          ],
+          "dtype": "float32",
+          "chunks": null,
+          "compression": null
+        },
+        "t0_fields/energy": {
+          "shape": [
+            10,
+            101,
+            512,
+            512
+          ],
+          "dtype": "float32",
+          "chunks": null,
+          "compression": null
+        },
+        "t0_fields/pressure": {
+          "shape": [
+            10,
+            101,
+            512,
+            512
+          ],
+          "dtype": "float32",
+          "chunks": null,
+          "compression": null
+        },
+        "t1_fields/momentum": {
+          "shape": [
+            10,
+            101,
+            512,
+            512,
+            2
+          ],
+          "dtype": "float32",
+          "chunks": null,
+          "compression": null
+        }
+      },
+      "transfer": {
+        "bytes_downloaded": 57671680,
+        "remote_file_size": 5295335348,
+        "requests": 55,
+        "ranges": [
+          {
+            "start": 0,
+            "end": 1048575,
+            "sha256": "44e3644e9a58abea143637b9db8d70587b8cea01b66cde68a4607207c8ee5294"
+          },
+          {
+            "start": 3177185280,
+            "end": 3178233855,
+            "sha256": "f2fcc13218d78a5481a7df47a620b5a541e598a500f6b277beb095a0f307c145"
+          },
+          {
+            "start": 1059061760,
+            "end": 1060110335,
+            "sha256": "7599505aa89f02a37e34bba7b0b56aae16d15611c29f1527b07c82263b3fe0ed"
+          },
+          {
+            "start": 1048576,
+            "end": 2097151,
+            "sha256": "da36347dfe0c689e29583d0e88e2d8ce77f9fce89582739b95208542af61512c"
+          },
+          {
+            "start": 1060110336,
+            "end": 1061158911,
+            "sha256": "2b9022419d6509c20f5930847792e6841eab96a41cab4d85b6bf1d7ab1ccb6be"
+          },
+          {
+            "start": 2118123520,
+            "end": 2119172095,
+            "sha256": "f210c9a53cfb54a950db78a4384258d365f94e0b44cbdc90766e2fe4448b424c"
+          },
+          {
+            "start": 2119172096,
+            "end": 2120220671,
+            "sha256": "5668262edead3d8eb12f187b9d7b072aef0f6feaccb8f0b49137faa1170bc49c"
+          },
+          {
+            "start": 3178233856,
+            "end": 3179282431,
+            "sha256": "66fb9579cd238b0986f8685263de3eb43d89630ee8e8f5cf8700512402c53b23"
+          },
+          {
+            "start": 3179282432,
+            "end": 3180331007,
+            "sha256": "2c25f4773c8bc4674785c6b0f71f9493564e03d7e3a3c8cacf31aba450397e98"
+          },
+          {
+            "start": 2097152,
+            "end": 3145727,
+            "sha256": "0c6f16e4f32a066e46a425a5fbbb4ceb2b6e51cce0efdf4d6720482fae68d8fb"
+          },
+          {
+            "start": 1061158912,
+            "end": 1062207487,
+            "sha256": "46ee41897b53a4104f33ba1a353be00fb4e70a5a84061d5beb454554b4ff63dd"
+          },
+          {
+            "start": 2120220672,
+            "end": 2121269247,
+            "sha256": "ef2e408ce88ca991935c7339c31802b92ad19d0ac93ce9ddb2ddafb708b48d27"
+          },
+          {
+            "start": 3180331008,
+            "end": 3181379583,
+            "sha256": "9b1dab613c33cc43c39c3817c8a37140fdcf4a515123e5732ba57e041e19b308"
+          },
+          {
+            "start": 3181379584,
+            "end": 3182428159,
+            "sha256": "e620621d4250159014f87489370bd272b5e531e38adb82f78f3b40e8627c8538"
+          },
+          {
+            "start": 3145728,
+            "end": 4194303,
+            "sha256": "bb5507f696a42a83e43f7ce246c48871c80c099cd97528dd768f1d4fda068334"
+          },
+          {
+            "start": 1062207488,
+            "end": 1063256063,
+            "sha256": "276d7354375fd4cf49cab481c6e6352f136bbff4301b2d8f3a44d1f47a3d32b3"
+          },
+          {
+            "start": 2121269248,
+            "end": 2122317823,
+            "sha256": "3223246893463c9368226acaaadc1795284c997201c0456191a369d5d349cee8"
+          },
+          {
+            "start": 3182428160,
+            "end": 3183476735,
+            "sha256": "9b1d3619450985b4347be816537f09bd20a95e959e481d817ceec7576b6979e0"
+          },
+          {
+            "start": 3183476736,
+            "end": 3184525311,
+            "sha256": "903fc81ebafa36330e46725cdc90b8350de411db9bb09c759f456982d4c4748c"
+          },
+          {
+            "start": 4194304,
+            "end": 5242879,
+            "sha256": "8e4a72c61cd216be1a45fe03919cff06067a29b672635c81ce7bf858cc6cb7e4"
+          },
+          {
+            "start": 5242880,
+            "end": 6291455,
+            "sha256": "13fc25bf9024d67054c53db624857fac5b068aa976d9762b354a7c099ec9681c"
+          },
+          {
+            "start": 1063256064,
+            "end": 1064304639,
+            "sha256": "c10a7a55776c08cbe5d1777248a03976b13198a3f92614e7bc2a9533b19126b2"
+          },
+          {
+            "start": 1064304640,
+            "end": 1065353215,
+            "sha256": "f742cc5f84898f95ef097caec0d9ff1947db1dbbc0c9bf2e1b01edd0b444a2ee"
+          },
+          {
+            "start": 2122317824,
+            "end": 2123366399,
+            "sha256": "a2ae995f9888710b63d6149ee699cd710667bcafbdbb57de83634e1b24f56585"
+          },
+          {
+            "start": 2123366400,
+            "end": 2124414975,
+            "sha256": "f6481f90eb707f331d47b07958b927f1f878989d1f9878978f04ad4145d7cec2"
+          },
+          {
+            "start": 3185573888,
+            "end": 3186622463,
+            "sha256": "37c51ffc307fcb9312fbe21cce66d35be8b36fda4df445c40bebf82e222b07a2"
+          },
+          {
+            "start": 3186622464,
+            "end": 3187671039,
+            "sha256": "76c5df91936074a1847dad5038aed8cbebd09d48a9f4291acd883abc22c43b57"
+          },
+          {
+            "start": 3187671040,
+            "end": 3188719615,
+            "sha256": "fd9e03c6eb106eb430d5283eb9459a62dd37c914895d5ce94e692d181241e367"
+          },
+          {
+            "start": 6291456,
+            "end": 7340031,
+            "sha256": "543525c423413011b7dfcde4ccf25304182fb267b5ff86436af3ac28083312e5"
+          },
+          {
+            "start": 7340032,
+            "end": 8388607,
+            "sha256": "93c97eac358bcede84575a036f44995e3c65113a1448cf76e83f6e10e90ab1de"
+          },
+          {
+            "start": 1065353216,
+            "end": 1066401791,
+            "sha256": "3344503d3d1e99fc4ca297d72e79c34487ea4f14a89f828cb1320e40045ab5f1"
+          },
+          {
+            "start": 1066401792,
+            "end": 1067450367,
+            "sha256": "9dfb2aa6216d9ed5b0db16a0848a81584425c6fb2e52c91798d828d396fee63d"
+          },
+          {
+            "start": 2124414976,
+            "end": 2125463551,
+            "sha256": "29f597e2a066fb85fed9aa895bc2bb7f5b7a5f561c27e2b550154478692d3326"
+          },
+          {
+            "start": 2125463552,
+            "end": 2126512127,
+            "sha256": "443a6a3c41d968d4467b7422599b7961bbbabd2350145e344bd42666a18dbc0d"
+          },
+          {
+            "start": 3189768192,
+            "end": 3190816767,
+            "sha256": "34623d6a6b5a7d2fead0d31d09ec9f4f25209811f29deeeb67d8e165b3089cca"
+          },
+          {
+            "start": 3190816768,
+            "end": 3191865343,
+            "sha256": "925ce2cf6b3e3b5d38c8f2a0eb3176e85e23d5ca50cde5cda551a5eb6268b13b"
+          },
+          {
+            "start": 3191865344,
+            "end": 3192913919,
+            "sha256": "8e3110e8f4674d69956848694451481c253ac6ea6ae36cb89b282f8cfe1e2b87"
+          },
+          {
+            "start": 8388608,
+            "end": 9437183,
+            "sha256": "da309199a5fdd298905a3a6144535fc28e7c8b9f821b0aeef7967cb795a9ed1d"
+          },
+          {
+            "start": 9437184,
+            "end": 10485759,
+            "sha256": "3323b5a3b116779c203834b67d724f11378325ecc0da3f28be29ea90e410bbb1"
+          },
+          {
+            "start": 1067450368,
+            "end": 1068498943,
+            "sha256": "f0bfdab65399f356aa416230ef9b76c49273fd888b99afa6393e2600d598deed"
+          },
+          {
+            "start": 1068498944,
+            "end": 1069547519,
+            "sha256": "aec1e0383fb877fe5b2910ab970cee13e890d518b9b38ca97cdfd4795cac993d"
+          },
+          {
+            "start": 2126512128,
+            "end": 2127560703,
+            "sha256": "bed54d65418134bbbed8eeeeda4a39cae1504527d0f5e391dca735f767704272"
+          },
+          {
+            "start": 2127560704,
+            "end": 2128609279,
+            "sha256": "cee89c9d24777a2d265379bbf0fad64673e88df7894505d635768b0156453dbf"
+          },
+          {
+            "start": 3193962496,
+            "end": 3195011071,
+            "sha256": "c8a66ef174b7a9dafd3d9d128b503d0e893024bf1448b77e18c799ce610cd162"
+          },
+          {
+            "start": 3195011072,
+            "end": 3196059647,
+            "sha256": "45f2d60a600d016f46dac35a5f4d93cdeaf2a4c321348681962229e9a6210f12"
+          },
+          {
+            "start": 3196059648,
+            "end": 3197108223,
+            "sha256": "a2c5cdbc6688dede0084be5a0a9d9169d200dd6991a316e429ab5e47483e1c71"
+          },
+          {
+            "start": 10485760,
+            "end": 11534335,
+            "sha256": "6da7a171a04585ae188c369bd72af257b19eb369bffe71ea771cca2a8e5871d5"
+          },
+          {
+            "start": 11534336,
+            "end": 12582911,
+            "sha256": "75d4a05e6ef1425463410401b95ef254540c135e12ef0cad6eedf7c0cd33570d"
+          },
+          {
+            "start": 1069547520,
+            "end": 1070596095,
+            "sha256": "ae642c011f1719367eb0e77cbc954ec471596707a398294a9f70e335dc089e6f"
+          },
+          {
+            "start": 1070596096,
+            "end": 1071644671,
+            "sha256": "7ce1a1b2d277fae55e2d7e389c594083cbbf88be3ff8b68a6ad0dd73df3e6f4e"
+          },
+          {
+            "start": 2128609280,
+            "end": 2129657855,
+            "sha256": "6512afeeb4a6ac79a6ecd674fed73da323d676c1d5a3aa0e39262185b6623b10"
+          },
+          {
+            "start": 2129657856,
+            "end": 2130706431,
+            "sha256": "5fd1130980cb9eb9c123443ca84aca5cf2b4f9676522d37c15feae9e1ecbe244"
+          },
+          {
+            "start": 3198156800,
+            "end": 3199205375,
+            "sha256": "5a8d1e3ef81a881ad31c0695b3e162b01c23847740d7069357fb93183f75d435"
+          },
+          {
+            "start": 3199205376,
+            "end": 3200253951,
+            "sha256": "a96649adb2b15d1b5fd497415187dbbbbe744d2491c3665e82a31d20a249559a"
+          },
+          {
+            "start": 3200253952,
+            "end": 3201302527,
+            "sha256": "19876f0f299ffd56f86a2cbb0d16e93755a79f301e1b961254f94dddf9aff4d9"
+          }
+        ]
+      },
+      "coordinates": {
+        "x_first": 0.0,
+        "x_last": 1.0,
+        "x_step": 0.001956947147846222,
+        "y_first": 0.0,
+        "y_last": 1.0,
+        "y_step": 0.001956947147846222
+      },
+      "physical_time_assumption": "physical_time = HDF5 dimensions/time * 0.015 s; interval from pinned dataset card",
+      "warnings": [
+        "Native data are 2D + time. momentum_z=0 is an explicit planar embedding, not an independent 3D observation.",
+        "HDF5 time stores indices 0..100 with no time-unit attribute. Conversion to seconds uses the dataset card, not per-file timing metadata.",
+        "Source x/y coordinates include both 0 and 1 (spacing 1/511), unlike finite-volume cell centers. The sample preserves their block means; a [0,1] finite-volume solve uses dx=dy=1/N from the documented domain.",
+        "Root n_trajectories=-1550 is inconsistent; actual first dimension is 10.",
+        "Averaged reference pressure is retained separately; it is not generally the EOS pressure of the averaged conservative state."
+      ]
+    },
+    {
+      "name": "ANU Fyris / Liska-Wendroff initial-state tables",
+      "sources": [
+        {
+          "name": "ANU Fyris / common Riemann settings",
+          "url": "https://www.mso.anu.edu.au/fyris/lw2driemann.html",
+          "source_sha256": "eaedc653157b33196e9c7407397a2b66239e05101aeaebce4849facc9ce23b15",
+          "downloaded_bytes": 38784
+        },
+        {
+          "name": "ANU Fyris / Riemann test 3",
+          "url": "https://www.mso.anu.edu.au/fyris/lw2drtst03.html",
+          "source_sha256": "61432563fd1ff0574c224dc6abff93106e68bb72804c2ec2bbd4ba25fb61b5fb",
+          "downloaded_bytes": 38146,
+          "data_kind": "Published numeric initial states; no final trajectory downloaded"
+        },
+        {
+          "name": "ANU Fyris / Riemann test 6",
+          "url": "https://www.mso.anu.edu.au/fyris/lw2drtst06.html",
+          "source_sha256": "6d4762cee42230f44a8dbb94ed71c7dcf04ad7c2f9fa04e349df20344e963f88",
+          "downloaded_bytes": 38138,
+          "data_kind": "Published numeric initial states; no final trajectory downloaded"
+        },
+        {
+          "name": "ANU Fyris / Riemann test 12",
+          "url": "https://www.mso.anu.edu.au/fyris/lw2drtst12.html",
+          "source_sha256": "cd98f115bf654f82beec956f56241240f89d5660ae5b63d7d885875c801d403e",
+          "downloaded_bytes": 38142,
+          "data_kind": "Published numeric initial states; no final trajectory downloaded"
+        }
+      ],
+      "provider": "Ralph Sutherland, Australian National University",
+      "artifact": "anu_cases.json",
+      "artifact_sha256": "2c27e5ad273453daa76aca3c67fc1adef316370e8a82eac27c00fe3be5a3c20f",
+      "artifact_bytes": 4333,
+      "license_note": "Only factual numerical initial conditions are retained; no ANU code or figures are redistributed."
+    }
+  ]
+}

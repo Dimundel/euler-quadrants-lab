@@ -1,0 +1,287 @@
+{
+  "3": {
+    "case_id": 3,
+    "gamma": 1.4,
+    "final_time": 0.3,
+    "discontinuity": [
+      0.5,
+      0.5
+    ],
+    "domain": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "boundary": "outflow",
+    "native_spatial_dimensions": 2,
+    "quadrant_order": [
+      "upper_right",
+      "upper_left",
+      "lower_left",
+      "lower_right"
+    ],
+    "primitive_order": [
+      "rho",
+      "u",
+      "v",
+      "w",
+      "p"
+    ],
+    "primitive": [
+      [
+        1.5,
+        0.0,
+        0.0,
+        0.0,
+        1.5
+      ],
+      [
+        0.5323,
+        1.206,
+        0.0,
+        0.0,
+        0.3
+      ],
+      [
+        0.138,
+        1.206,
+        1.206,
+        0.0,
+        0.029
+      ],
+      [
+        0.5323,
+        0.0,
+        1.206,
+        0.0,
+        0.3
+      ]
+    ],
+    "quadrants": {
+      "upper_right": {
+        "rho": 1.5,
+        "p": 1.5,
+        "u": 0.0,
+        "v": 0.0,
+        "w": 0.0
+      },
+      "upper_left": {
+        "rho": 0.5323,
+        "p": 0.3,
+        "u": 1.206,
+        "v": 0.0,
+        "w": 0.0
+      },
+      "lower_left": {
+        "rho": 0.138,
+        "p": 0.029,
+        "u": 1.206,
+        "v": 1.206,
+        "w": 0.0
+      },
+      "lower_right": {
+        "rho": 0.5323,
+        "p": 0.3,
+        "u": 0.0,
+        "v": 1.206,
+        "w": 0.0
+      }
+    },
+    "url": "https://www.mso.anu.edu.au/fyris/lw2drtst03.html"
+  },
+  "6": {
+    "case_id": 6,
+    "gamma": 1.4,
+    "final_time": 0.3,
+    "discontinuity": [
+      0.5,
+      0.5
+    ],
+    "domain": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "boundary": "outflow",
+    "native_spatial_dimensions": 2,
+    "quadrant_order": [
+      "upper_right",
+      "upper_left",
+      "lower_left",
+      "lower_right"
+    ],
+    "primitive_order": [
+      "rho",
+      "u",
+      "v",
+      "w",
+      "p"
+    ],
+    "primitive": [
+      [
+        1.0,
+        0.75,
+        -0.5,
+        0.0,
+        1.0
+      ],
+      [
+        2.0,
+        0.75,
+        0.5,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        -0.75,
+        0.5,
+        0.0,
+        1.0
+      ],
+      [
+        3.0,
+        -0.75,
+        -0.5,
+        0.0,
+        1.0
+      ]
+    ],
+    "quadrants": {
+      "upper_right": {
+        "p": 1.0,
+        "rho": 1.0,
+        "u": 0.75,
+        "v": -0.5,
+        "w": 0.0
+      },
+      "upper_left": {
+        "p": 1.0,
+        "rho": 2.0,
+        "u": 0.75,
+        "v": 0.5,
+        "w": 0.0
+      },
+      "lower_left": {
+        "p": 1.0,
+        "rho": 1.0,
+        "u": -0.75,
+        "v": 0.5,
+        "w": 0.0
+      },
+      "lower_right": {
+        "p": 1.0,
+        "rho": 3.0,
+        "u": -0.75,
+        "v": -0.5,
+        "w": 0.0
+      }
+    },
+    "url": "https://www.mso.anu.edu.au/fyris/lw2drtst06.html"
+  },
+  "12": {
+    "case_id": 12,
+    "gamma": 1.4,
+    "final_time": 0.25,
+    "discontinuity": [
+      0.5,
+      0.5
+    ],
+    "domain": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "boundary": "outflow",
+    "native_spatial_dimensions": 2,
+    "quadrant_order": [
+      "upper_right",
+      "upper_left",
+      "lower_left",
+      "lower_right"
+    ],
+    "primitive_order": [
+      "rho",
+      "u",
+      "v",
+      "w",
+      "p"
+    ],
+    "primitive": [
+      [
+        0.5313,
+        0.0,
+        0.0,
+        0.0,
+        0.4
+      ],
+      [
+        1.0,
+        0.7276,
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.8,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.7276,
+        0.0,
+        1.0
+      ]
+    ],
+    "quadrants": {
+      "upper_right": {
+        "p": 0.4,
+        "rho": 0.5313,
+        "u": 0.0,
+        "v": 0.0,
+        "w": 0.0
+      },
+      "upper_left": {
+        "p": 1.0,
+        "rho": 1.0,
+        "u": 0.7276,
+        "v": 0.0,
+        "w": 0.0
+      },
+      "lower_left": {
+        "p": 1.0,
+        "rho": 0.8,
+        "u": 0.0,
+        "v": 0.0,
+        "w": 0.0
+      },
+      "lower_right": {
+        "p": 1.0,
+        "rho": 1.0,
+        "u": 0.0,
+        "v": 0.7276,
+        "w": 0.0
+      }
+    },
+    "url": "https://www.mso.anu.edu.au/fyris/lw2drtst12.html"
+  }
+}
