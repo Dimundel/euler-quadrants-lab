@@ -45,4 +45,3 @@ def entropy_wave(n=24, time=0.0, velocity=(0.3, -0.2, 0.1), amplitude=0.2):
     state[..., 1:4] = velocity
     state[..., 4] = 1.0
     return state
-
