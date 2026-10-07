@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "euler-quadrants-lab"
+version = "0.1.0"
+description = "Задачи Римана для уравнений Эйлера: тема 11"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26,<3",
+    "scipy>=1.11,<2",
+    "matplotlib>=3.8,<4",
+    "networkx>=3.2,<4",
+    "h5py>=3.10,<4",
+    "fsspec>=2024.6",
+    "requests>=2.31,<3",
+    "beautifulsoup4>=4.12,<5",
+    "nbformat>=5.9,<6",
+    "nbclient>=0.9,<1",
+    "ipykernel>=6.27,<8",
+    "pytest>=8,<10",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
