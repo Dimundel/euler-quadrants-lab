@@ -36,6 +36,12 @@ uv run --locked jupyter lab notebooks/lab11.ipynb
 uv run --locked python scripts/run_lab.py
 ```
 
+Тесты:
+
+```bash
+uv run --locked pytest -q
+```
+
 Данные уже лежат в репозитории, для расчёта интернет не нужен.
 При необходимости их можно скачать заново:
 
@@ -48,6 +54,8 @@ uv run --locked python scripts/download_data.py
 - `src/euler_lab/` — солвер, подбор γ, загрузка данных и графики.
 - `data/processed/` — сохранённая выборка и сведения об источниках.
 - `results/` — рисунки и метрики последнего расчёта.
+- `tests/` — проверки солвера, подбора γ и работы с данными.
+- [ai/](ai/README.md) — как использовался ИИ, запросы и контекст.
 
 ## Данные
 
