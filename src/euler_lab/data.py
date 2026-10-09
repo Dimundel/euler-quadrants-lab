@@ -14,7 +14,6 @@ import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
-
 WELL_REPO = "polymathic-ai/euler_multi_quadrants_openBC"
 WELL_REVISION = "84e3eb65faf286533714295515caf9b99b4717a7"
 WELL_FILENAME = "euler_multi_quadrants_openBC_gamma_1.4_Dry_air_20_chunk_40.hdf5"
@@ -92,10 +91,14 @@ class HTTPRangeReader(io.RawIOBase):
         separator = "&" if "?" in self.url else "?"
         url = f"{self.url}{separator}lab_offset={start}"
         headers = {"Range": f"bytes={start}-{end}", "Accept-Encoding": "identity"}
-        with self.session.get(url, headers=headers, stream=True, timeout=(15, 60)) as response:
+        with self.session.get(
+            url, headers=headers, stream=True, timeout=(15, 60)
+        ) as response:
             if response.status_code != 206:
                 raise RuntimeError(f"Expected HTTP 206, got {response.status_code}")
-            match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+)", response.headers.get("Content-Range", ""))
+            match = re.fullmatch(
+                r"bytes (\d+)-(\d+)/(\d+)", response.headers.get("Content-Range", "")
+            )
             if not match:
                 raise RuntimeError("Missing or invalid Content-Range")
             actual_start, actual_end, total = map(int, match.groups())
@@ -109,14 +112,19 @@ class HTTPRangeReader(io.RawIOBase):
             payload = bytearray()
             for chunk in response.iter_content(chunk_size=65536):
                 self.bytes_downloaded += len(chunk)
-                if self.bytes_downloaded > self.max_bytes or len(payload) + len(chunk) > expected_length:
+                if (
+                    self.bytes_downloaded > self.max_bytes
+                    or len(payload) + len(chunk) > expected_length
+                ):
                     raise RuntimeError("Response exceeded the requested byte range")
                 payload.extend(chunk)
             if len(payload) != expected_length:
                 raise RuntimeError("Truncated HTTP Range response")
         data = bytes(payload)
         self._blocks[start] = data
-        self.ranges.append({"start": start, "end": actual_end, "sha256": sha256_bytes(data)})
+        self.ranges.append(
+            {"start": start, "end": actual_end, "sha256": sha256_bytes(data)}
+        )
 
     def read(self, size=-1):
         self._checkClosed()
@@ -163,8 +171,11 @@ def coarsen_cells(values, factor):
 def parse_anu_case(html, case_id):
     """Разбирает числовую таблицу ANU, включая различающийся порядок строк P/d."""
     soup = BeautifulSoup(html, "html.parser")
-    tables = [table for table in soup.find_all("table")
-              if "T_final" in table.get_text() and table.find("table") is None]
+    tables = [
+        table
+        for table in soup.find_all("table")
+        if "T_final" in table.get_text() and table.find("table") is None
+    ]
     if len(tables) != 1:
         raise ValueError("Expected one ANU initial-state table")
     values = {name: {} for name in QUADRANT_ORDER}
@@ -172,7 +183,10 @@ def parse_anu_case(html, case_id):
     final_time = None
     columns = {"d": "rho", "P": "p", "v_x": "u", "v_y": "v"}
     for row in tables[0].find_all("tr"):
-        cells = [cell.get_text(" ", strip=True) for cell in row.find_all(["td", "th"], recursive=False)]
+        cells = [
+            cell.get_text(" ", strip=True)
+            for cell in row.find_all(["td", "th"], recursive=False)
+        ]
         if cells[:1] == ["T_final"]:
             final_time = float(cells[1])
         elif cells == ["Upper Left", "Upper Right"]:
@@ -189,17 +203,27 @@ def parse_anu_case(html, case_id):
     for state in values.values():
         if set(state) != {"rho", "p", "u", "v"}:
             raise ValueError("Incomplete quadrant state")
-        if not all(np.isfinite(value) for value in state.values()) or state["rho"] <= 0 or state["p"] <= 0:
+        if (
+            not all(np.isfinite(value) for value in state.values())
+            or state["rho"] <= 0
+            or state["p"] <= 0
+        ):
             raise ValueError("Nonphysical quadrant state")
         state["w"] = 0.0
     return {
-        "case_id": int(case_id), "gamma": 1.4, "final_time": final_time,
-        "discontinuity": [0.5, 0.5], "domain": [[0.0, 1.0], [0.0, 1.0]],
-        "boundary": "outflow", "native_spatial_dimensions": 2,
+        "case_id": int(case_id),
+        "gamma": 1.4,
+        "final_time": final_time,
+        "discontinuity": [0.5, 0.5],
+        "domain": [[0.0, 1.0], [0.0, 1.0]],
+        "boundary": "outflow",
+        "native_spatial_dimensions": 2,
         "quadrant_order": list(QUADRANT_ORDER),
         "primitive_order": ["rho", "u", "v", "w", "p"],
-        "primitive": [[values[name][field] for field in ("rho", "u", "v", "w", "p")]
-                      for name in QUADRANT_ORDER],
+        "primitive": [
+            [values[name][field] for field in ("rho", "u", "v", "w", "p")]
+            for name in QUADRANT_ORDER
+        ],
         "quadrants": values,
     }
 
@@ -222,10 +246,14 @@ def download_well_sample(output_dir):
     with requests.Session() as session:
         card = _small_download(WELL_CARD_URL, session)
         if "0.015s" not in card.decode("utf-8"):
-            raise ValueError("Dataset card no longer confirms the assumed output interval")
+            raise ValueError(
+                "Dataset card no longer confirms the assumed output interval"
+            )
         tree_url = f"https://huggingface.co/api/datasets/{WELL_REPO}/tree/{WELL_REVISION}/data/test"
         tree = json.loads(_small_download(tree_url, session))
-        file_info = next(item for item in tree if item["path"].endswith("/" + WELL_FILENAME))
+        file_info = next(
+            item for item in tree if item["path"].endswith("/" + WELL_FILENAME)
+        )
         with HTTPRangeReader(WELL_URL, session=session) as remote:
             with h5py.File(remote, "r") as handle:
                 density_dataset = handle["t0_fields/density"]
@@ -233,58 +261,126 @@ def download_well_sample(output_dir):
                     raise ValueError("Unexpected source HDF5 shape")
                 source_time = handle["dimensions/time"][:].astype(np.float64)
                 if not np.array_equal(source_time, np.arange(101)):
-                    raise ValueError("Time coordinates changed; revisit the documented conversion")
+                    raise ValueError(
+                        "Time coordinates changed; revisit the documented conversion"
+                    )
                 x = handle["dimensions/x"][:].astype(np.float64)
                 y = handle["dimensions/y"][:].astype(np.float64)
                 gamma = float(handle["scalars/gamma"][()])
                 schema = {}
-                for path in ("t0_fields/density", "t0_fields/energy", "t0_fields/pressure", "t1_fields/momentum"):
+                for path in (
+                    "t0_fields/density",
+                    "t0_fields/energy",
+                    "t0_fields/pressure",
+                    "t1_fields/momentum",
+                ):
                     field = handle[path]
-                    schema[path] = {"shape": list(field.shape), "dtype": str(field.dtype),
-                                    "chunks": field.chunks, "compression": field.compression}
+                    schema[path] = {
+                        "shape": list(field.shape),
+                        "dtype": str(field.dtype),
+                        "chunks": field.chunks,
+                        "compression": field.compression,
+                    }
                 conserved, pressures, eos_samples = [], [], {}
-                indices = np.random.default_rng(11).choice(512 * 512, size=1000, replace=False)
+                indices = np.random.default_rng(11).choice(
+                    512 * 512, size=1000, replace=False
+                )
                 for frame in FRAME_INDICES:
                     rho = density_dataset[0, frame].astype(np.float64)
                     energy = handle["t0_fields/energy"][0, frame].astype(np.float64)
                     pressure = handle["t0_fields/pressure"][0, frame].astype(np.float64)
                     momentum = handle["t1_fields/momentum"][0, frame].astype(np.float64)
-                    state = np.stack((rho, momentum[..., 0], momentum[..., 1], np.zeros_like(rho), energy), axis=-1)
+                    state = np.stack(
+                        (
+                            rho,
+                            momentum[..., 0],
+                            momentum[..., 1],
+                            np.zeros_like(rho),
+                            energy,
+                        ),
+                        axis=-1,
+                    )
                     conserved.append(coarsen_cells(state, 8))
                     pressures.append(coarsen_cells(pressure, 8))
                     # EOS нелинейна по rho и momentum: усреднение испортило бы подгонку gamma.
                     if frame in (2, 10):
-                        raw = np.stack((rho, momentum[..., 0], momentum[..., 1], energy, pressure), axis=-1)
+                        raw = np.stack(
+                            (rho, momentum[..., 0], momentum[..., 1], energy, pressure),
+                            axis=-1,
+                        )
                         eos_samples[frame] = raw.reshape(-1, 5)[indices]
-                    print(f"The Well: кадр {frame:2d}, получено {remote.bytes_downloaded / 1e6:.1f} МБ", flush=True)
+                    print(
+                        f"The Well: кадр {frame:2d}, получено {remote.bytes_downloaded / 1e6:.1f} МБ",
+                        flush=True,
+                    )
                 stored_trajectory_attribute = int(handle.attrs["n_trajectories"])
-            transfer = {"bytes_downloaded": remote.bytes_downloaded, "remote_file_size": remote.size,
-                        "requests": len(remote.ranges), "ranges": remote.ranges}
+            transfer = {
+                "bytes_downloaded": remote.bytes_downloaded,
+                "remote_file_size": remote.size,
+                "requests": len(remote.ranges),
+                "ranges": remote.ranges,
+            }
     selection = np.array(FRAME_INDICES, dtype=int)
     path = output_dir / "well_sample.npz"
     np.savez_compressed(
-        path, time=source_time[selection] * 0.015, source_time=source_time[selection],
-        frame_indices=selection, x=x.reshape(64, 8).mean(axis=1), y=y.reshape(64, 8).mean(axis=1),
-        conserved=np.array(conserved), pressure=np.array(pressures), gamma=np.array(gamma),
-        eos_train=eos_samples[2], eos_test=eos_samples[10], eos_flat_indices=indices,
+        path,
+        time=source_time[selection] * 0.015,
+        source_time=source_time[selection],
+        frame_indices=selection,
+        x=x.reshape(64, 8).mean(axis=1),
+        y=y.reshape(64, 8).mean(axis=1),
+        conserved=np.array(conserved),
+        pressure=np.array(pressures),
+        gamma=np.array(gamma),
+        eos_train=eos_samples[2],
+        eos_test=eos_samples[10],
+        eos_flat_indices=indices,
     )
     return {
         "name": "The Well / Euler Multi-quadrants, open boundaries",
-        "provider": "Polymathic AI; Ohana et al. (2024)", "url": WELL_URL,
-        "revision": WELL_REVISION, "upstream_file_sha256": file_info.get("lfs", {}).get("oid"),
+        "provider": "Polymathic AI; Ohana et al. (2024)",
+        "url": WELL_URL,
+        "revision": WELL_REVISION,
+        "upstream_file_sha256": file_info.get("lfs", {}).get("oid"),
         "upstream_sha256_verified_by_full_download": False,
-        "card_url": WELL_CARD_URL, "card_sha256": sha256_bytes(card),
-        "license": "CC-BY-4.0", "license_source": "https://arxiv.org/html/2412.00568v2",
+        "card_url": WELL_CARD_URL,
+        "card_sha256": sha256_bytes(card),
+        "license": "CC-BY-4.0",
+        "license_source": "https://arxiv.org/html/2412.00568v2",
         "license_note": "The Well paper, datasheet question Q43; HF card has no license field.",
-        "artifact": path.name, "artifact_sha256": sha256_bytes(path.read_bytes()),
-        "artifact_bytes": path.stat().st_size, "selection": {"trajectory": 0, "frames": list(FRAME_INDICES),
+        "artifact": path.name,
+        "artifact_sha256": sha256_bytes(path.read_bytes()),
+        "artifact_bytes": path.stat().st_size,
+        "selection": {
+            "trajectory": 0,
+            "frames": list(FRAME_INDICES),
             "spatial_reduction": "512x512 -> 64x64 by non-overlapping 8x8 cell means",
-            "conserved_order": ["rho", "momentum_x", "momentum_y", "momentum_z", "total_energy_density"],
-            "eos_order": ["rho", "momentum_x", "momentum_y", "total_energy_density", "pressure"],
-            "eos_sampling": "1000 deterministic random cells (seed 11), raw frame 2 train / frame 10 test"},
-        "schema": schema, "transfer": transfer,
-        "coordinates": {"x_first": float(x[0]), "x_last": float(x[-1]), "x_step": float(x[1] - x[0]),
-                        "y_first": float(y[0]), "y_last": float(y[-1]), "y_step": float(y[1] - y[0])},
+            "conserved_order": [
+                "rho",
+                "momentum_x",
+                "momentum_y",
+                "momentum_z",
+                "total_energy_density",
+            ],
+            "eos_order": [
+                "rho",
+                "momentum_x",
+                "momentum_y",
+                "total_energy_density",
+                "pressure",
+            ],
+            "eos_sampling": "1000 deterministic random cells (seed 11), raw frame 2 train / frame 10 test",
+        },
+        "schema": schema,
+        "transfer": transfer,
+        "coordinates": {
+            "x_first": float(x[0]),
+            "x_last": float(x[-1]),
+            "x_step": float(x[1] - x[0]),
+            "y_first": float(y[0]),
+            "y_last": float(y[-1]),
+            "y_step": float(y[1] - y[0]),
+        },
         "physical_time_assumption": "physical_time = HDF5 dimensions/time * 0.015 s; interval from pinned dataset card",
         "warnings": [
             "Native data are 2D + time. momentum_z=0 is an explicit planar embedding, not an independent 3D observation.",
@@ -305,32 +401,54 @@ def download_anu_cases(output_dir, case_ids=(3, 6, 12)):
         text = BeautifulSoup(settings, "html.parser").get_text(" ", strip=True)
         if not re.search(r"Gamma\s*=\s*1\.4", text):
             raise ValueError("ANU settings no longer confirm gamma=1.4")
-        sources.append({"name": "ANU Fyris / common Riemann settings", "url": ANU_SETTINGS_URL,
-                        "source_sha256": sha256_bytes(settings), "downloaded_bytes": len(settings)})
+        sources.append(
+            {
+                "name": "ANU Fyris / common Riemann settings",
+                "url": ANU_SETTINGS_URL,
+                "source_sha256": sha256_bytes(settings),
+                "downloaded_bytes": len(settings),
+            }
+        )
         for case_id in case_ids:
             url = f"https://www.mso.anu.edu.au/fyris/lw2drtst{case_id:02d}.html"
             html = _small_download(url, session)
             case = parse_anu_case(html, case_id)
             case["url"] = url
             cases[str(case_id)] = case
-            sources.append({"name": f"ANU Fyris / Riemann test {case_id}", "url": url,
-                            "source_sha256": sha256_bytes(html), "downloaded_bytes": len(html),
-                            "data_kind": "Published numeric initial states; no final trajectory downloaded"})
+            sources.append(
+                {
+                    "name": f"ANU Fyris / Riemann test {case_id}",
+                    "url": url,
+                    "source_sha256": sha256_bytes(html),
+                    "downloaded_bytes": len(html),
+                    "data_kind": "Published numeric initial states; no final trajectory downloaded",
+                }
+            )
     path = output_dir / "anu_cases.json"
-    path.write_text(json.dumps(cases, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return {"name": "ANU Fyris / Liska-Wendroff initial-state tables", "sources": sources,
-            "provider": "Ralph Sutherland, Australian National University",
-            "artifact": path.name, "artifact_sha256": sha256_bytes(path.read_bytes()),
-            "artifact_bytes": path.stat().st_size,
-            "license_note": "Only factual numerical initial conditions are retained; no ANU code or figures are redistributed."}
+    path.write_text(
+        json.dumps(cases, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    return {
+        "name": "ANU Fyris / Liska-Wendroff initial-state tables",
+        "sources": sources,
+        "provider": "Ralph Sutherland, Australian National University",
+        "artifact": path.name,
+        "artifact_sha256": sha256_bytes(path.read_bytes()),
+        "artifact_bytes": path.stat().st_size,
+        "license_note": "Only factual numerical initial conditions are retained; no ANU code or figures are redistributed.",
+    }
 
 
 def download_data(output_dir):
     output_dir = Path(output_dir)
-    manifest = {"retrieved_at_utc": datetime.now(timezone.utc).isoformat(),
-                "sources": [download_well_sample(output_dir), download_anu_cases(output_dir)]}
+    manifest = {
+        "retrieved_at_utc": datetime.now(timezone.utc).isoformat(),
+        "sources": [download_well_sample(output_dir), download_anu_cases(output_dir)],
+    }
     path = output_dir / "sources.json"
-    path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
     return manifest
 
 
