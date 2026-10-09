@@ -8,18 +8,23 @@ version = "0.1.0"
 description = "Задачи Римана для уравнений Эйлера: тема 11"
 requires-python = ">=3.12"
 dependencies = [
-    "numpy>=1.26,<3",
-    "scipy>=1.11,<2",
-    "matplotlib>=3.8,<4",
-    "networkx>=3.2,<4",
-    "h5py>=3.10,<4",
-    "requests>=2.31,<3",
-    "beautifulsoup4>=4.12,<5",
-    "nbformat>=5.9,<6",
-    "nbclient>=0.9,<1",
-    "nbconvert>=7.10,<8",
-    "ipykernel>=6.27,<8",
-    "pytest>=8,<10",
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "matplotlib==3.11.2",
+    "networkx==3.7",
+    "h5py==3.16.0",
+    "requests==2.34.2",
+    "beautifulsoup4==4.15.0",
+    "nbformat==5.11.1",
+    "nbclient==0.11.0",
+    "nbconvert==7.17.1",
+    "ipykernel==7.4.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "jupyterlab>=4,<5",
 ]
 
 [tool.setuptools.packages.find]

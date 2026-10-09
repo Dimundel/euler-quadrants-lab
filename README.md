@@ -28,28 +28,33 @@
 
 ## Запуск
 
-Для сохранённого набора версий нужен Python 3.12. На нём выполнен расчёт.
+Нужен установленный `uv`. Версия Python 3.12 указана в `.python-version`,
+зависимости — в `pyproject.toml`, точные версии — в `uv.lock`.
 Из корня репозитория:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip install -e . --no-deps
-python -m pytest -q
-python scripts/run_lab.py
+uv sync --locked
+uv run --locked pytest -q
+uv run --locked python scripts/run_lab.py
 ```
 
-В Windows окружение активируется командой `.venv\Scripts\activate`.
+`uv sync` создаёт `.venv` и при необходимости скачивает Python.
+Команды одинаковы для macOS, Linux и Windows; активировать окружение не нужно.
 Повторный запуск использует сохранённые данные и обновляет ноутбук,
 `results/lab11.html`, графики и `results/metrics.json`.
 В вычислениях сеть не требуется; HTML использует MathJax для формул.
-Ноутбук также можно открыть в Jupyter или VS Code с этим Python-окружением.
+Для интерактивной работы:
+
+```bash
+uv run --locked jupyter lab notebooks/lab11.ipynb
+```
+
+В VS Code выбери ядро из `.venv`.
 
 Для повторной загрузки исходных данных по HTTPS:
 
 ```bash
-python scripts/download_data.py
+uv run --locked python scripts/download_data.py
 ```
 
 Загрузчик получает около **58 MB** диапазонами байтов, а не весь HDF5 на 5.3 GB.
@@ -69,6 +74,7 @@ URL, версия источника, выборка и контрольные �
 | `src/euler_lab/data.py` | Загрузка двух источников и проверка данных |
 | `src/euler_lab/experiments.py` | Начальные условия задач Римана |
 | `src/euler_lab/plotting.py` | Оформление графиков |
+| `pyproject.toml`, `uv.lock`, `.python-version` | Зависимости и воспроизводимое окружение uv |
 | `tests/` | Проверки физики, преобразований, калибровки и загрузчика |
 | `results/` | Выполненный отчёт, рисунки и численные результаты |
 | `docs/assignment.pdf` | Исходные требования |

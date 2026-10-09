@@ -799,18 +799,22 @@ for target_time in output_times[1:]:
 Нужен Python 3.12 для зафиксированного набора версий. Команды выполняются **из корня `euler-quadrants-lab`**.
 
 ```bash
-python3 --version
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip install -e . --no-deps
-python -m pytest -q
-python scripts/run_lab.py
+uv sync --locked
+uv run --locked pytest -q
+uv run --locked python scripts/run_lab.py
 ```
 
-Первая команда должна показать нужную версию. Если `python3` указывает на старую, используй установленный Python 3.12 при создании окружения. В Windows активация — `.venv\Scripts\activate`.
+Нужен установленный `uv`. Команда `uv sync --locked` создаёт `.venv`, устанавливает зависимости из `uv.lock` и при необходимости скачивает Python 3.12, указанный в `.python-version`. Команды одинаковы на macOS, Linux и Windows; ручная активация не нужна.
 
-Установка пакетов требует сети. Повторный расчёт использует уже сохранённую выборку. Для формул HTML может понадобиться доступ к MathJax. Оригинальные данные можно повторно скачать командой `python scripts/download_data.py`, но для демонстрации это не обязательно.
+Чтобы открыть ноутбук интерактивно:
+
+```bash
+uv run --locked jupyter lab notebooks/lab11.ipynb
+```
+
+В VS Code выбери ядро из `.venv`.
+
+Установка пакетов требует сети. Повторный расчёт использует уже сохранённую выборку. Для формул HTML может понадобиться доступ к MathJax. Оригинальные данные можно повторно скачать командой `uv run --locked python scripts/download_data.py`, но для демонстрации это не обязательно.
 
 Результаты запуска: обновлённый ноутбук, `results/lab11.html`, семь рисунков и `results/metrics.json`.
 
