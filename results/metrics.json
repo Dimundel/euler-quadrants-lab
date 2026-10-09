@@ -100,21 +100,6 @@
       }
     }
   },
-  "volume_3d": {
-    "16": {
-      "mae": 0.020232048621166718,
-      "rmse": 0.02795306762688686,
-      "relative_l2": 0.027886072840320547,
-      "max_conservation_drift": 9.769962616701378e-15
-    },
-    "32": {
-      "mae": 0.011626197608015743,
-      "rmse": 0.0159440223056951,
-      "relative_l2": 0.01590469072743078,
-      "max_conservation_drift": 1.0436096431476471e-13
-    }
-  },
-  "observed_order_3d": 0.8099909824427238,
   "data_manifest_sha256": "aae46e688362edbca01da2472ef75e15bda361ce4cde42aa9a2c091ca6bffc2d",
   "time_interpretation": "source_time * 0.015, from pinned dataset card",
   "grid_interpretation": "uniform finite volumes in [0,1], dx=1/N; source labels preserved"

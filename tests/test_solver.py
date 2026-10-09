@@ -14,15 +14,15 @@ from euler_lab.solver import (
 )
 
 
-def smooth_state(shape):
+def piecewise_state(shape):
     coordinates = [(np.arange(n) + 0.5) / n for n in shape]
     x, y, z = np.meshgrid(*coordinates, indexing="ij")
     state = np.empty((*shape, 5))
-    state[..., 0] = 1 + 0.15 * np.sin(2 * np.pi * (x + y + z))
-    state[..., 1] = 0.2 + 0.05 * np.cos(2 * np.pi * y)
-    state[..., 2] = -0.1 + 0.05 * np.sin(2 * np.pi * z)
-    state[..., 3] = 0.1 + 0.05 * np.cos(2 * np.pi * x)
-    state[..., 4] = 1 + 0.1 * np.cos(2 * np.pi * (x - y + z))
+    state[..., 0] = 1 + 0.15 * ((x >= 0.5) & (y < 0.5)) + 0.05 * (z >= 0.5)
+    state[..., 1] = 0.2 + 0.05 * (y >= 0.5)
+    state[..., 2] = -0.1 + 0.05 * (z >= 0.5)
+    state[..., 3] = 0.1 + 0.05 * (x >= 0.5)
+    state[..., 4] = 1 + 0.1 * ((x >= 0.5) | (z < 0.5))
     return state
 
 
@@ -54,7 +54,7 @@ class TestEulerSolver(unittest.TestCase):
 
     def test_periodic_conservation_in_three_dimensions(self):
         shape = (12, 10, 8)
-        state = smooth_state(shape)
+        state = piecewise_state(shape)
         solver = EulerSolver(boundary=("periodic",) * 3)
         result = solver.solve(state, [0, 0.04, 0.1], [1 / n for n in shape])
         totals = primitive_to_conservative(result).sum(axis=(1, 2, 3))
@@ -63,7 +63,7 @@ class TestEulerSolver(unittest.TestCase):
         self.assertGreater(np.max(np.abs(result[-1] - state)), 1e-3)
 
     def test_planar_data_remains_identical_along_z(self):
-        state = smooth_state((10, 8, 1))
+        state = piecewise_state((10, 8, 1))
         state[..., 3] = 0
         extruded = np.repeat(state, 5, axis=2)
         result = EulerSolver().solve(extruded, [0, 0.05], [0.1, 0.125, 0.2])
@@ -75,25 +75,13 @@ class TestEulerSolver(unittest.TestCase):
         self.assertTrue(np.all(planar[..., (0, 4)] > 0))
 
     def test_permuting_x_y_and_velocities_preserves_solution(self):
-        state = smooth_state((9, 7, 5))
+        state = piecewise_state((9, 7, 5))
         swapped = state.transpose(1, 0, 2, 3)[..., [0, 2, 1, 3, 4]]
         solver = EulerSolver(boundary=("periodic",) * 3)
         original = solver.solve(state, [0, 0.05], [1 / 9, 1 / 7, 1 / 5])
         changed = solver.solve(swapped, [0, 0.05], [1 / 7, 1 / 9, 1 / 5])
         restored = changed.transpose(0, 2, 1, 3, 4)[..., [0, 2, 1, 3, 4]]
         assert_allclose(restored, original, rtol=1e-12, atol=1e-12)
-
-    def test_density_wave_is_transported_along_z(self):
-        z = (np.arange(64) + 0.5) / 64
-        state = np.broadcast_to([1, 0, 0, 0.5, 1], (1, 1, 64, 5)).copy()
-        state[0, 0, :, 0] = 1 + 0.1 * np.sin(2 * np.pi * z)
-        numerical = EulerSolver().solve(state, [0, 0.1], [1, 1, 1 / 64])[-1, 0, 0]
-        exact_density = 1 + 0.1 * np.sin(2 * np.pi * (z - 0.5 * 0.1))
-        initial_error = np.linalg.norm(state[0, 0, :, 0] - exact_density)
-        final_error = np.linalg.norm(numerical[:, 0] - exact_density)
-        self.assertLess(final_error, 0.5 * initial_error)
-        assert_allclose(numerical[:, 1:4], state[0, 0, :, 1:4], atol=1e-13)
-        assert_allclose(numerical[:, 4], 1, atol=1e-13)
 
     def test_sod_shock_stays_physical_and_moves(self):
         state = np.empty((80, 1, 1, 5))

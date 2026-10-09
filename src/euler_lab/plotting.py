@@ -44,34 +44,3 @@ def plot_comparison(prediction, reference, time):
             fig.colorbar(plotted, ax=axes[row, col], shrink=0.8)
     fig.suptitle(f"Сравнение при t = {time:.3f}")
     return fig
-
-
-def plot_volume(initial, final, time):
-    """Показать три сечения объёма; цвет обозначает плотность."""
-    from matplotlib.colors import Normalize
-    from matplotlib.cm import ScalarMappable
-
-    n = initial.shape[0]
-    axis = (np.arange(n) + 0.5) / n
-    a, b = np.meshgrid(axis, axis, indexing="ij")
-    norm = Normalize(vmin=0.8, vmax=1.2)
-    cmap = plt.get_cmap("coolwarm")
-    fig = plt.figure(figsize=(10, 4.5), layout="constrained")
-    axes = []
-    # Сечения смещены от середины, где произведение синусов обращается в ноль.
-    cut = n // 4
-    level = np.full_like(a, axis[cut])
-    for i, (state, label) in enumerate(((initial, "Начальное состояние"),
-                                       (final, f"Численное решение, t={time:g}")), start=1):
-        ax = fig.add_subplot(1, 2, i, projection="3d")
-        axes.append(ax)
-        for x, y, z, density in ((a, b, level, state[:, :, cut, 0]),
-                                  (a, level, b, state[:, cut, :, 0]),
-                                  (level, a, b, state[cut, :, :, 0])):
-            ax.plot_surface(x, y, z, facecolors=cmap(norm(density)),
-                            shade=False, linewidth=0, alpha=0.95)
-        ax.set(xlabel="x", ylabel="y", zlabel="z", title=label,
-               xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
-        ax.set_box_aspect((1, 1, 1))
-    fig.colorbar(ScalarMappable(norm=norm, cmap=cmap), ax=axes, shrink=0.65, label="Плотность")
-    return fig
