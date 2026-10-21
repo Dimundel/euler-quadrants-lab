@@ -1,0 +1,40 @@
+{
+  "name": "Cylinder wake, Re=100, PINNs / Nektar++ numerical data",
+  "kind": "external numerical simulation, not a physical experiment",
+  "source_url": "https://raw.githubusercontent.com/maziarraissi/PINNs/932f50a2d8ef4e80d1456bbae6887a73ff5166ef/main/Data/cylinder_nektar_wake.mat",
+  "revision": "932f50a2d8ef4e80d1456bbae6887a73ff5166ef",
+  "source_sha256": "99d9e1f9da7d2dff113ff2723373237b455e2de6c6747ac681846fe86fbba3d0",
+  "source_bytes": 24081984,
+  "article": "https://doi.org/10.1016/j.jcp.2018.10.045",
+  "author_description": "https://maziarraissi.github.io/PINNs/",
+  "expected_parameters": {
+    "beta": 1.0,
+    "nu": 0.01
+  },
+  "coordinates": {
+    "x": [
+      1.0,
+      8.0
+    ],
+    "y": [
+      -2.0,
+      2.0
+    ],
+    "t": [
+      0.0,
+      19.900000000000002
+    ]
+  },
+  "shape": [
+    200,
+    50,
+    100
+  ],
+  "transform": "all points and frames retained; reorder to (t,y,x); u,v,p cast to float32",
+  "artifact": "cylinder_wake.npz",
+  "artifact_sha256": "dda64f7257ffbf594cd42ef7891a8756e40fb7aef3d10c2e8e21eeb884aec813",
+  "model_repository": "https://github.com/papayiv/NavieStocks_project",
+  "model_revision": "66eb7bc73cd802a3249c058ad69fc59a95fbd807",
+  "reused_file": "navier_stokes_tree.py -> src/navier_lab/ivan_graph.py",
+  "reason_for_data_change": "Ivan's PDEBench velocity file has no observed pressure; intervention requires p"
+}
