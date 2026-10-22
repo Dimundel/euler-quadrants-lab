@@ -57,20 +57,35 @@ def _uniform_step(coordinates):
     return float(differences[0])
 
 
-def momentum_from_fields(u, v, p, x, y, time):
-    """Производные внутренних узлов, без периодического склеивания границ."""
-    dt, dy, dx = (_uniform_step(c) for c in (time, y, x))
+def momentum_from_fields(u, v, p, x, y, time, *, skip_initial_frames=0):
+    """Производные внутренних узлов, без периодического склеивания границ.
+
+    skip_initial_frames убирает начальные кадры до расчёта производных.
+    Так исключённый кадр не попадёт в пятиузловой временной шаблон.
+    """
+    if (isinstance(skip_initial_frames, (bool, np.bool_))
+            or not isinstance(skip_initial_frames, (int, np.integer))
+            or skip_initial_frames < 0):
+        raise ValueError("skip_initial_frames должен быть целым неотрицательным числом")
     u, v, p = (np.asarray(a, dtype=float) for a in (u, v, p))
+    time = np.asarray(time, dtype=float)
     shape = (len(time), len(y), len(x))
-    if any(a.shape != shape or not np.all(np.isfinite(a)) for a in (u, v, p)):
+    if any(a.shape != shape for a in (u, v, p)):
+        raise ValueError("Поля должны иметь форму (nt, ny, nx)")
+    if len(time) - skip_initial_frames < 5:
+        raise ValueError("После исключения начальных кадров должно остаться минимум пять")
+    time = time[skip_initial_frames:]
+    u, v, p = (a[skip_initial_frames:] for a in (u, v, p))
+    if any(not np.all(np.isfinite(a)) for a in (u, v, p)):
         raise ValueError("Поля должны иметь конечные значения и форму (nt, ny, nx)")
+    dt, dy, dx = (_uniform_step(c) for c in (time, y, x))
     ux, uy = derivative(u, dx, 2), derivative(u, dy, 1)
     vx, vy = derivative(v, dx, 2), derivative(v, dy, 1)
     cut = (slice(2, -2), slice(2, -2), slice(2, -2))
     def pair(a, b):
         return np.stack((a[cut], b[cut]), axis=-1)
     return MomentumData(
-        np.asarray(time)[2:-2],
+        time[2:-2],
         pair(u * ux + v * uy, u * vx + v * vy),
         pair(derivative(u, dx, 2, 2) + derivative(u, dy, 1, 2),
              derivative(v, dx, 2, 2) + derivative(v, dy, 1, 2)),

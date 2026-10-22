@@ -17,6 +17,32 @@ def test_five_point_derivative_on_polynomial():
     np.testing.assert_allclose(derivative(x**4, x[1]-x[0], 0, 2)[2:-2], 12*x[2:-2]**2, atol=1e-10)
 
 
+def test_skipped_initial_frame_does_not_enter_time_derivatives():
+    time = np.arange(12) * 0.1
+    x, y = np.linspace(-1, 1, 8), np.linspace(-1, 1, 7)
+    tt, yy, xx = np.meshgrid(time, y, x, indexing='ij')
+    fields = dict(time=time, x=x, y=y, u=tt**4+xx**2+yy**2,
+                  v=2*tt**3+xx*yy, p=tt*xx+yy**2)
+    clean = momentum_from_fields(**fields, skip_initial_frames=1)
+    damaged = {key: value.copy() for key, value in fields.items()}
+    for key in ('u', 'v', 'p'):
+        damaged[key][0] = np.nan
+    changed = momentum_from_fields(**damaged, skip_initial_frames=1)
+    for key in ('time', 'convection', 'laplacian', 'pressure_gradient', 'acceleration'):
+        np.testing.assert_array_equal(getattr(clean, key), getattr(changed, key))
+    np.testing.assert_array_equal(clean.time, time[3:-2])
+    expected = np.stack((4*tt**3, 6*tt**2), axis=-1)[3:-2, 2:-2, 2:-2]
+    np.testing.assert_allclose(clean.acceleration, expected, atol=1e-13)
+
+
+@pytest.mark.parametrize('skip', [-1, 0.5, True, 16])
+def test_invalid_initial_frame_skip_is_rejected(skip):
+    _, fields = taylor_green(n=8, nt=20)
+    observed = {key: fields[key] for key in ('u', 'v', 'p', 'x', 'y', 'time')}
+    with pytest.raises(ValueError):
+        momentum_from_fields(**observed, skip_initial_frames=skip)
+
+
 def test_taylor_green_satisfies_momentum_equation():
     d, _ = taylor_green(noise_fraction=0)
     expected = -d.convection + 0.01*d.laplacian - d.pressure_gradient
@@ -100,16 +126,16 @@ def cylinder():
 
 
 def test_external_reference_has_correct_axes_and_expected_coefficients(cylinder):
-    d = momentum_from_fields(**cylinder)
+    d = momentum_from_fields(**cylinder, skip_initial_frames=1)
     theta = least_squares(*d.design(slice(0, 120)))
-    assert theta[0] == pytest.approx(1, abs=0.003)
-    assert theta[1] == pytest.approx(0.01, abs=0.0003)
+    assert theta[0] == pytest.approx(1, abs=0.0001)
+    assert theta[1] == pytest.approx(0.01, abs=0.00001)
 
 
 def test_constant_pressure_shift_does_not_change_fit(cylinder):
-    d = momentum_from_fields(**cylinder)
+    d = momentum_from_fields(**cylinder, skip_initial_frames=1)
     changed = dict(cylinder, p=cylinder['p'].astype(float)+3)
-    shifted = momentum_from_fields(**changed)
+    shifted = momentum_from_fields(**changed, skip_initial_frames=1)
     np.testing.assert_allclose(least_squares(*d.design(slice(0,120))),
                                least_squares(*shifted.design(slice(0,120))), atol=1e-12)
 
