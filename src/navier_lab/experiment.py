@@ -3,10 +3,10 @@
 import numpy as np
 
 from .geometry import estimate_gaussian, gaussian_kl, metric_length, spd_distance
-from .model import fit_blocks, least_squares, prediction_error
+from .model import fit_blocks, fit_parameters, prediction_error, residual_scale
 
 
-def run_experiment(data, block_size=10, n_blocks=12, gap=4):
+def run_experiment(data, block_size=10, n_blocks=12, gap=4, *, loss="l2", huber_delta=1.345):
     """Первые 120 кадров для оценки, после временного зазора — проверка.
 
     Это распределение оценок по временным окнам, не байесовский posterior
@@ -18,17 +18,26 @@ def run_experiment(data, block_size=10, n_blocks=12, gap=4):
     blocks = [np.arange(i * block_size, (i + 1) * block_size) for i in range(n_blocks)]
     train = np.arange(end)
     test = np.arange(end + gap, len(data.time))
-    base_samples = fit_blocks(data, blocks)
+    if loss not in ("l2", "huber"):
+        raise ValueError("Функция ошибки должна быть l2 или huber")
+    # Масштаб оценивается только на исходных обучающих данных и не меняется
+    # при занулении давления. Для общей оценки и каждого окна он свой.
+    block_scales = ([residual_scale(*data.design(block)) for block in blocks]
+                    if loss == "huber" else None)
+    global_scale = residual_scale(*data.design(train)) if loss == "huber" else None
+    fit_options = dict(loss=loss, huber_scale=global_scale, huber_delta=huber_delta)
+    block_options = dict(loss=loss, huber_scales=block_scales, huber_delta=huber_delta)
+    base_samples = fit_blocks(data, blocks, **block_options)
     base = estimate_gaussian(base_samples)
-    global_theta = least_squares(*data.design(train))
+    global_theta = fit_parameters(*data.design(train), **fit_options)
     base_error = prediction_error(data, test, global_theta)
     rows, samples = [], []
     # alpha=1 — назначенное зануление. Промежуточные alpha показывают путь к нему.
     for alpha in (0.0, 0.25, 0.5, 0.75, 1.0):
         changed = data.pressure_intervention(alpha)
-        estimates = fit_blocks(changed, blocks)
+        estimates = fit_blocks(changed, blocks, **block_options)
         distribution = estimate_gaussian(estimates)
-        theta = least_squares(*changed.design(train))
+        theta = fit_parameters(*changed.design(train), **fit_options)
         error = prediction_error(changed, test, theta)
         rows.append(dict(
             alpha=alpha, mean=distribution.mean.tolist(),
@@ -52,6 +61,10 @@ def run_experiment(data, block_size=10, n_blocks=12, gap=4):
         train_time=[float(data.time[train[0]]), float(data.time[train[-1]])],
         test_time=[float(data.time[test[0]]), float(data.time[test[-1]])],
         block_count=n_blocks, block_size=block_size,
+        loss=loss,
+        huber=({"delta": huber_delta, "global_scale": global_scale,
+                "block_scales": block_scales, "scale_source": "baseline_training_l2_residual_mad"}
+               if loss == "huber" else None),
         decision="candidate_for_removal" if eligible else "retain_pressure_branch",
         rule={"max_baseline_relative_l2": 0.05,
               "max_kl": 0.1, "max_absolute_relative_l2_increase": 0.01,

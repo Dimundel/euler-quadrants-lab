@@ -100,21 +100,24 @@ def test_spd_geodesic_endpoints_and_midpoint():
     assert spd_distance(a, mid) == pytest.approx(spd_distance(a, b)/2)
 
 
-def test_error_alone_misses_pressure_compensation():
+@pytest.mark.parametrize('loss', ['l2', 'huber'])
+def test_error_alone_misses_pressure_compensation(loss):
     d, _ = taylor_green(n=16)
-    r = run_experiment(d)
+    r = run_experiment(d, loss=loss)
     before, after = r['rows'][0], r['rows'][-1]
     assert after['test_error'] == pytest.approx(before['test_error'], abs=1e-10)
     assert after['kl'] > 100
     assert r['decision'] == 'retain_pressure_branch'
 
 
-def test_test_frames_do_not_enter_parameter_fits():
+@pytest.mark.parametrize('loss', ['l2', 'huber'])
+def test_test_frames_do_not_enter_parameter_fits(loss):
     d, _ = taylor_green(n=8)
-    before = run_experiment(d)
+    before = run_experiment(d, loss=loss)
     d.acceleration[before['test_frames']] += 1
-    after = run_experiment(d)
+    after = run_experiment(d, loss=loss)
     np.testing.assert_array_equal(before['samples'], after['samples'])
+    assert before['huber'] == after['huber']
     assert before['rows'][-1]['kl'] == after['rows'][-1]['kl']
     assert before['rows'][0]['test_error'] != after['rows'][0]['test_error']
 

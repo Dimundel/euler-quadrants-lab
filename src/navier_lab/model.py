@@ -138,9 +138,95 @@ def least_squares(x, y):
     return fitted / scale
 
 
-def fit_blocks(data, blocks):
-    """Один вектор (beta, nu) для каждого непересекающегося временного блока."""
-    return np.asarray([least_squares(*data.design(block)) for block in blocks])
+def residual_scale(x, y):
+    """1.4826 MAD остатков исходного L2; вызывается только на обучающих данных.
+
+    Масштаб нужно вычислить до интервенций и затем передавать неизменным.
+    Нулевой (включая точность округления) MAD не задаёт масштаб шума: вместо
+    скрытой регуляризации требуем явно выбрать положительную sigma.
+    """
+    theta = least_squares(x, y)
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    predicted = x @ theta
+    residuals = y - predicted
+    scale = float(1.4826 * np.median(np.abs(residuals - np.median(residuals))))
+    roundoff = 32 * np.finfo(float).eps * max(np.max(np.abs(y)), np.max(np.abs(predicted)))
+    if not np.isfinite(scale) or scale <= roundoff:
+        raise ValueError("Нулевой MAD остатков: задайте положительный huber_scale явно")
+    return scale
+
+
+def fit_parameters(x, y, loss='l2', huber_scale=None, huber_delta=1.345):
+    """Оценить (beta, nu) с L2 либо фиксированной функцией потерь Huber.
+
+    Huber минимизирует sum rho_delta((y - X theta) / sigma), где sigma задаётся
+    через huber_scale и не переоценивается во время подгонки. IRLS решает
+    взвешенные задачи через SVD с масштабированием столбцов, без нормальных
+    уравнений. Неидентифицируемость и отсутствие сходимости не скрываются.
+    """
+    if loss not in ('l2', 'huber'):
+        raise ValueError("loss должен быть 'l2' или 'huber'")
+    initial = least_squares(x, y)
+    if loss == 'l2':
+        return initial
+    if huber_scale is None or not np.isfinite(huber_scale) or huber_scale <= 0:
+        raise ValueError("huber_scale должен быть конечным положительным числом")
+    if not np.isfinite(huber_delta) or huber_delta <= 0:
+        raise ValueError("huber_delta должен быть конечным положительным числом")
+    cutoff = float(huber_scale * huber_delta)
+    if not np.isfinite(cutoff) or cutoff <= 0:
+        raise ValueError("Порог huber_scale * huber_delta должен быть конечным и положительным")
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    column_scale = np.sqrt(np.mean(x**2, axis=0))
+    normalized = x / column_scale
+    coefficient = initial * column_scale
+    residuals = y - normalized @ coefficient
+    if np.all(np.abs(residuals) <= cutoff):
+        return initial
+
+    def objective(r):
+        # Эквивалентная цель, поделённая на n*delta/sigma; без огромных r/sigma.
+        absolute = np.abs(r)
+        clipped = np.minimum(absolute, cutoff)
+        return float(np.mean(0.5 * clipped * (clipped / cutoff) + absolute - clipped))
+
+    previous = objective(residuals)
+    for _ in range(2000):
+        weights = np.minimum(1.0, cutoff / np.maximum(np.abs(residuals), cutoff))
+        root = np.sqrt(weights)
+        updated = least_squares(normalized * root[:, None], y * root)
+        residuals = y - normalized @ updated
+        current = objective(residuals)
+        if not np.isfinite(current) or current > previous + 1e-11 * max(previous, np.finfo(float).tiny):
+            raise RuntimeError("Huber IRLS: целевая функция не убывает")
+        score = normalized.T @ np.clip(residuals / cutoff, -1.0, 1.0) / len(y)
+        # Допуск учитывает округление при вычислении y - X theta, но не
+        # увеличивает sigma и не меняет целевую функцию.
+        roundoff = (32 * np.finfo(float).eps
+                    * (np.max(np.abs(y)) + np.max(np.abs(y - residuals))) / cutoff
+                    * np.mean(np.abs(normalized), axis=0))
+        if np.all(np.abs(score) <= 1e-9 + roundoff):
+            return updated / column_scale
+        previous = current
+    raise RuntimeError("Huber IRLS не сошёлся за 2000 итераций")
+
+
+def fit_blocks(data, blocks, *, loss='l2', huber_scales=None, huber_delta=1.345):
+    """Один вектор (beta, nu) на окно; Huber использует исходную sigma каждого окна."""
+    if loss not in ('l2', 'huber'):
+        raise ValueError("loss должен быть 'l2' или 'huber'")
+    blocks = list(blocks)
+    if loss == 'huber':
+        if huber_scales is None:
+            raise ValueError("Для Huber нужны исходные huber_scales по всем окнам")
+        scales = np.asarray(huber_scales, float)
+        if scales.shape != (len(blocks),) or not np.all(np.isfinite(scales)) or np.any(scales <= 0):
+            raise ValueError("huber_scales должны содержать положительный масштаб для каждого окна")
+    else:
+        scales = [None] * len(blocks)
+    return np.asarray([fit_parameters(*data.design(block), loss=loss,
+                                      huber_scale=scale, huber_delta=huber_delta)
+                       for block, scale in zip(blocks, scales)])
 
 
 def prediction_error(data, indices, theta):
