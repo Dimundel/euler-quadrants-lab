@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
+from matplotlib.ticker import MaxNLocator
 import networkx as nx
 import numpy as np
 
@@ -109,4 +110,37 @@ def plot_covariance_geometry(result):
     axes[1].plot([r['alpha'] for r in rows],[r['spd_distance'] for r in rows],'o-',color=COLORS[0])
     axes[1].set(title='Ковариации при интервенции',xlabel='α',ylabel='Расстояние на SPD')
     axes[1].grid(alpha=.2)
+    return fig
+
+
+def plot_loss_comparison(comparisons):
+    """Маргинальные нормальные аппроксимации для двух функций ошибки."""
+    fig, axes = plt.subplots(2 * len(comparisons), 2, figsize=(11, 10),
+                             layout="constrained", squeeze=False)
+    for dataset_index, (name, methods) in enumerate(comparisons.items()):
+        for state_index, (index, state) in enumerate(((0, "исходные"), (-1, "p=0"))):
+            row = 2 * dataset_index + state_index
+            for parameter, symbol in enumerate(("β", "ν")):
+                ax = axes[row, parameter]
+                fits = [(label, estimate_gaussian(result["samples"][index]))
+                        for label, result in methods.items()]
+                lower = min(g.mean[parameter] - 3.5 * np.sqrt(g.covariance[parameter, parameter])
+                            for _, g in fits)
+                upper = max(g.mean[parameter] + 3.5 * np.sqrt(g.covariance[parameter, parameter])
+                            for _, g in fits)
+                grid = np.linspace(lower, upper, 500)
+                for color, (label, gaussian) in zip(COLORS, fits):
+                    mean = gaussian.mean[parameter]
+                    std = np.sqrt(gaussian.covariance[parameter, parameter])
+                    density = np.exp(-0.5 * ((grid - mean) / std)**2) / (std * np.sqrt(2 * np.pi))
+                    ax.plot(grid, density, color=color, label=label)
+                    points = methods[label]["samples"][index, :, parameter]
+                    ax.plot(points, np.zeros_like(points), "|", color=color, markersize=8)
+                ax.set(title=f"{name}: {state}", xlabel=symbol, ylabel="Плотность распределения")
+                ax.ticklabel_format(axis="both", style="sci", scilimits=(-3, 3), useOffset=False)
+                ax.xaxis.set_major_locator(MaxNLocator(4))
+                ax.tick_params(axis="x", labelsize=9)
+                ax.grid(alpha=0.2)
+                ax.legend(fontsize=9)
+    fig.suptitle("Функция ошибки и распределения оценок по 12 окнам")
     return fig
