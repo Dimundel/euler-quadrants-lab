@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/papayiv/euler-quadrants-lab",
+  "commit": "c401635cd8966dec498f17dcff242a3b705fde29",
+  "source_path": "src/euler_lab/interventions.py",
+  "source_git_blob": "27eaba3f3621fa8b68615dec95de3dcc429d1f7d",
+  "local_path": "src/graph_lab/vendor/ivan_interventions.py",
+  "sha256": "478071ad1cab35c22e4b72ede8743ee1acbe5da2fe6a0e8067018bfe942a212a",
+  "changes": "None. The source is retained byte-for-byte. Lab 3 uses a separate selection and diagnostic engine.",
+  "author": "Ivan Papay",
+  "retrieved": "2026-11-12"
+}
