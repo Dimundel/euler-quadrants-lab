@@ -27,7 +27,7 @@ def plot_gates(run, path, title):
         ax.plot(gates[:,j], label=PARAM_LABELS[p], color=COLORS[j],
                 ls=["-","--",":"][j//3], lw=1.8)
     ax.axhline(.5, color="black", lw=.8, alpha=.4)
-    ax.set(xlabel="Сохранённый шаг оптимизации", ylabel="Непрерывный затвор", ylim=(-.04,1.04), title=title)
+    ax.set(xlabel="Шаг оптимизации", ylabel="Коэффициент включения z", ylim=(-.04,1.04), title=title)
     ax.legend(ncol=3, loc="upper right", fontsize=9)
     _finish(fig,path)
 
@@ -39,7 +39,7 @@ def plot_archive(run, path, title):
     best=np.minimum.accumulate(scores)
     axes[0].scatter(np.arange(len(rows)),scores,s=9,c="#b2bac4",alpha=.55,label="Кандидат")
     axes[0].plot(best,color="#277DA8",label="Лучший в архиве")
-    axes[0].set(xlabel="Номер порождённого графа",ylabel="Критерий на валидации",title="Выбор по архиву")
+    axes[0].set(xlabel="Номер кандидата",ylabel="Критерий на валидации",title="Выбор графа")
     axes[0].legend()
     edges=np.array([sum(r["mask"]) for r in rows])
     errors=np.array([r["val_nmse"] for r in rows])
@@ -47,7 +47,7 @@ def plot_archive(run, path, title):
     axes[1].scatter(sum(run["selected_mask"]),run["val_nmse"],marker="*",s=240,c="#e49b36",edgecolor="black",label="Выбранный")
     axes[1].set(xlabel="Число активных групп",ylabel="NMSE на валидации",title="Точность и сложность",xticks=range(10))
     axes[1].legend()
-    fig.colorbar(points,ax=axes[1],label="Доля противоречий проверке рёбер")
+    fig.colorbar(points,ax=axes[1],label="Доля расхождений с диагностикой")
     fig.suptitle(title)
     fig.tight_layout()
     _finish(fig,path)
@@ -109,7 +109,7 @@ def plot_fit(data,run,path,title):
                    loc="upper left", handletextpad=.2, columnspacing=.6)
     bounds=np.quantile(np.r_[true,pred],[.001,.999])
     axes[0].plot(bounds,bounds,"k--",lw=1)
-    axes[0].set(xlabel="Наблюдаемая производная",ylabel="Предсказанная производная",title="Отложенные кадры, нормированные единицы")
+    axes[0].set(xlabel="Наблюдаемая производная",ylabel="Предсказанная производная",title="Тестовые кадры после нормировки")
     eq_errors=[]
     for eq in range(5):
         m=data.test.equation==eq
@@ -135,11 +135,11 @@ def plot_diagnostics(diag,path,title):
     colors=["#277DA8" if k else "#acb3bd" for k in diag["keep"]]
     axes[0].bar(labels,info,color=colors)
     axes[0].axhline(1,color="#d45744",ls="--",label="Порог 1 нат")
-    axes[0].set(ylabel="KL(post || prior), нат",title="Идентифицируемость по обучению")
+    axes[0].set(ylabel="KL(post || prior), нат",title="Информация о весах")
     axes[0].legend(fontsize=9)
     axes[1].bar(labels,np.minimum(ratio,1e7),color=colors)
     axes[1].set_yscale("symlog",linthresh=1)
-    axes[1].axhline(1,color="#d45744",ls="--",label="Сдвиг равен нулевому порогу")
+    axes[1].axhline(1,color="#d45744",ls="--",label="Сдвиг равен порогу")
     axes[1].set(ylabel="Jeffreys / 95%-квантиль",title="Реакция на условное перемешивание")
     axes[1].legend(fontsize=9)
     fig.suptitle(title);fig.tight_layout()
